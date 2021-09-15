@@ -10,7 +10,7 @@ export default class fetchImages {
   }
 
   fetchImage(searchQuery) {
-    const url = `${BASE_URL}?image_type=photo&orientation=horizontal&q=${this.searchQuery}&page=${this.page}&per_page=4&key=${KEY}`;
+    const url = `${BASE_URL}?image_type=photo&orientation=horizontal&q=${this.searchQuery}&page=${this.page}&per_page=12&key=${KEY}`;
 
     return fetch(url)
       .then(response => response.json())

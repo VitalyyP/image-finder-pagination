@@ -9,34 +9,41 @@ import './style.css';
 const refForm = document.querySelector('#search-form');
 const refGallery = document.querySelector('.gallery');
 const refPagination = document.querySelector('.pagination');
-// const refNumberOfPage = document.querySelector('.number-of-page');
 
 const newImage = new FetchImages();
 
 let currentSearchValue = '';
 let currentNumberOfPage = 1;
+let selectedRef = '';
 
 refForm.addEventListener('submit', makeGallery);
 refGallery.addEventListener('click', openImgInModal);
 refPagination.addEventListener('click', showPageOfNumber);
+refPagination.addEventListener('click', changeClassActive);
 
-function makeGallery(e) {
+async function makeGallery(e) {
   e.preventDefault();
   newImage.page = 1;
   currentNumberOfPage = 1;
   getQueryFromInput(e);
   newImage.searchQuery = currentSearchValue;
   addImagestoGallery();
-  addPagination();
+  await addPagination(e);
+   selectedRef = document.querySelector('.number-of-page');
+   selectedRef.classList.add('number-of-page__active');
 }
 
-function showPageOfNumber(e) {
+async function showPageOfNumber(e) {
   e.preventDefault();
 
   getNumberOfPage(e);
   newImage.page = currentNumberOfPage;
   addImagestoGallery();
-  addPagination();
+
+ await addPagination(e);
+ 
+  // changeClassActive(e);
+  // e.target.classList.add('number-of-page__active');
 }
 
 function getQueryFromInput(e) {
@@ -47,7 +54,7 @@ function getNumberOfPage(e) {
   if (e.target.nodeName !== 'SPAN') {
     return;
   }
-  console.log(e.srcElement.outerText);
+  // console.log(e.srcElement.outerText);
   currentNumberOfPage = +e.srcElement.outerText;
 }
 
@@ -61,39 +68,91 @@ function addImagestoGallery() {
   });
 }
 
-function addPagination() {
-  newImage.fetchAllImages().then(data => {
-    let total = data.total;
-    let pages = Math.ceil(total / 4);
-    // console.log(total);
-    // console.log(pages);
-    let array = [];
-    for (let i = 0; i < pages && i < 7; i += 1) {
-      array.push(i + 1);
-    }
+// function addPagination(e) {
+//   newImage.fetchAllImages().then(data => {
+//     let total = data.total;
+//     let pages = Math.ceil(total / 12);
+//     // console.log(total);
+//     // console.log(pages);
+//     let array = [];
+//     for (let i = 0; i < pages && i < 7; i += 1) {
+//       array.push(i + 1);
+//     }
 
-    if (pages > 7) {
-      array[5] = '...';
-      array[6] = pages;
-    }
+//     if (pages > 7) {
+//       array[5] = '...';
+//       array[6] = pages;
+//       if (currentNumberOfPage > 4 && currentNumberOfPage < pages - 3) {
+//         array[1] = '...';
+//         array[2] = currentNumberOfPage - 1;
+//         array[3] = currentNumberOfPage;
+//         array[4] = currentNumberOfPage + 1;
+//       }
 
-    if (currentNumberOfPage > 4) {
+//       if (currentNumberOfPage >= pages - 3) {
+//         array[1] = '...';
+//         array[2] = pages - 4;
+//         array[3] = pages - 3;
+//         array[4] = pages - 2;
+//         array[5] = pages - 1;
+//         // array[6] = pages;
+//       }
+//     }
+
+//     refPagination.innerHTML = createPagination(array);
+//     const refNumberOfPage = document.querySelector('.number-of-page');
+//     refNumberOfPage.classList.add('number-of-page__active');
+//   });
+//   e.target.classList.add('number-of-page__active');
+// }
+
+async function addPagination(e) {
+  const data = await newImage.fetchAllImages();
+  let total = data.total;
+  let pages = Math.ceil(total / 12);
+  let array = [];
+  for (let i = 0; i < pages && i < 7; i += 1) {
+    array.push(i + 1);
+  }
+
+  if (pages > 7) {
+    array[5] = '...';
+    array[6] = pages;
+    if (currentNumberOfPage > 4 && currentNumberOfPage < pages - 3) {
       array[1] = '...';
       array[2] = currentNumberOfPage - 1;
       array[3] = currentNumberOfPage;
       array[4] = currentNumberOfPage + 1;
     }
 
-    if (currentNumberOfPage > pages - 2) {
-      
-      // array[4] = pages - 2;
+    if (currentNumberOfPage >= pages - 3) {
+      array[1] = '...';
+      array[2] = pages - 4;
+      array[3] = pages - 3;
+      array[4] = pages - 2;
       array[5] = pages - 1;
-      array[6] = pages;
+      // array[6] = pages;
     }
-
-    refPagination.innerHTML = createPagination(array);
-  });
+  }
+  console.log('before innerHTML')
+  refPagination.innerHTML = createPagination(array);
+  console.log('after innerHTML');
+  // selectedRef = refPagination.querySelector('.number-of-page');
+  // selectedRef.classList.add('number-of-page__active');
+  // console.log(e.target.outerText);
+  // e.target.classList.add('number-of-page__active');
 }
+
+function changeClassActive(e) {
+  if (selectedRef) {
+    selectedRef.classList.remove('number-of-page__active');
+    console.log('class removed');
+  }
+  selectedRef = e.target;
+  e.target.classList.add('number-of-page__active');
+  console.log('class added');
+};
+  
 
 function openImgInModal(e) {
   if (e.target.nodeName !== 'IMG') {
